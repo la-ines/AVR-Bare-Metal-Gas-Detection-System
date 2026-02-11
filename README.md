@@ -1,1 +1,148 @@
 # AVR-Bare-Metal-Gas-Detection-System
+ 1- Overview :
+  this project designs and implements an AVR based embedded system using custom-built, Baremetal (register-level) C driver to interface the MQ-135 gas sensor and manage additional peripherals.
+  Since the MQ-135 lacks an official driver, the library was developed from scratch, built on the Arduino Uno, the system reads real-time gas levels and displays them on the LCD. It also activates a buzzer for gas detection alerts and uses UART for external monitoring. 
+  The system measures gas concentration in PPM and alerts the user when harmful gases such as CO or alcohol are detected.
+
+ 2- Hardware/Software representation:
+    The hardware components used in the system are:
+      MQ-135 gas detector for detecting harmful gases.
+      ATmega328p microcontroller on the Arduino uno.
+      16x2 I2C LCD to display the measurement.
+      buzzer for alert signals.
+    The software part includes the enviroment that we will be building our firmware which is:
+       Atmel Studio development environment (IDE) developed by Microchip for programming and            debugging AVR and ARM microcontrollers.It provides a user-friendly interface for writing         code in C/C++,compiling, simulating, and uploading firmware to microcontrollers like the
+       ATmega328P.
+
+3- Project implemetation:
+  1- driver architecture structure:
+avr-gas-detection-driver/
+│
+├── MCAL/
+│   ├── DIO/
+│   │   ├── DIO.c
+│   │   ├── DIO_reg.h
+│   │   ├── DIO_types.h
+│   │   └── DIO.h
+│   ├── UART/
+│   │   ├── UART.c
+│   │   ├── UART.h
+│   │   └── UART_reg.h
+│   ├── TWI/
+|   |   ├── TWI.c
+|   |   ├── TWI.h 
+│   │   └── TWI_reg.h
+│   ├── ADC/
+│   │   ├── ADC.c
+│   │   ├── ADC_reg.h
+│   │   ├── ADC_types.h
+│   │   ├── ADC.h
+|       └──ADC_config.h
+│   ├── DELAY/
+│   │   ├── delay_function.c
+│   │   └── delay_function_reg.h
+│   ├── Bit manipulation/macros/
+│   │   ├── bit_Math.h
+│   │   └── common_macros.h
+├── HAL/
+│   ├── LCD I2C/
+│   │   ├── LCD_I2C.c
+│   │   └── LCD_I2C.h
+│   ├── ADC /
+│   │   ├── ADC_LAB.c
+│   │   └── ADC_LAB.h
+│   ├── UART /
+│   │   ├── UART_APP.c
+│   │   └── UART_APP.h
+├── APP/
+│   ├── GAS application/
+|       ├── GAS_APP.c
+|       └── GAS_APP.h
+|
+
+  2- explanaition of each part of the driver:
+   DIO:
+    The Digital I/O (DIO) module serves as the foundation for interacting with the ATmega328P’s     general-purpose I/O pins.
+    Register-Level Implementation The DIO library is divided into three layers:
+    Register Definitions (dio-reg.h):
+    Macros that define for the I/O registers using memory-mapped addresses that we get from the     atmega328p datasheet used with symbolic names, such as DDRA-Reg, PORTA-Reg, and PINA-Reg
+    for Port A.
+    Type Definitions (dio-types.h): 
+    Contains enums for ports, pin numbers, directions, and logic levels to ensure type safety       and code clarity.
+    Function Prototypes (dio.h): 
+    Provides function declarations for all operations (set direction/value for ports and pins,      get pin value).
+    Implementation (dio.c): 
+    The core source file where all functionalities are defined based on direct bit manipulation     of the microcontroller’s registers:
+    DIO_SetPortDirection( DIO_PORTX, INPUT/OUTPUT):This function sets the direction of the
+    entire port as either input or output.
+    DIO_SetPortValue(DIO_PORTX, HIGH/LOW):this function sets the whole port to HIGH or LOW.
+    DIO_SetPinDirection(DIO_PORTX, PinX, INPUT/OUTPUT): This function sets the direction a          specific pin of a given port as either input or output.
+    DIO-SetPinValue(DIO-PORTX, PinX, HIGH/LOW): This function sets a specific pin of a given        port to HIGH or LOW.
+    DIO_GetPinValue(DIO_PORTX, PinX):this function Reads (input) and returns the current logic      level (HIGH or LOW) of the specific pin in the specified port.
+
+   ADC:
+   The ADC module enables the ATmega328P microcontroller to convert analog voltage inputs into     corresponding 10-bit digital values. This allows interfacing with analog sensors and            signals. Register-Level Implementation The ADC library is organized into structured these 5
+   layers:
+   Register Definitions(adc-reg.h): Contains direct memory-mapped definitions for ADC-related      registers like ADMUX-Reg, ADCSRA-Reg, ADCL-Reg, and ADCH-Reg, which we get from the             datasheet.
+   
+   Type Definitions (adc-types.h): Includes masks and macros for setting reference voltage         (REFS1:0), prescalers, adjustment (left/right), modes (auto trigger or single                   conversion),and channel selection. These symbolic constants improve readability and reduce      errors.
+  
+   Configuration (adc-config.h): it centralizes the specific selections such as voltage            reference source (AVCC, AREF, or 1.1V), ADC operation mode (auto-triggered or single            conversion), result alignment (left or right), and prescaler settings to set ADC clock.
+   
+   Function Prototypes (adc.h): Declares the core functions which abstract the
+   low-level operations such as initializing, triggering, and retrieving conversion results.
+   
+   Implementation (adc.c): Implements all functions using bit level manipulation:
+   ADC-Initialize():this function configures the ADC by setting the reference voltage, mode,
+   adjustment, trigger source, and enables the ADC peripheral.
+   ADC-StartConversion(channel): this function selects an input channel and starts the             conversion.
+   ADC-GetResult() waits for the conversion to complete and returns the result.
+
+   LCD-I2C:
+   The LCD I2C driver enables the ATmega328P microcontroller to interface with LCD 16×2 display    using the I2C communication protocol. This significantly reduces the number of GPIO pins        required while maintaining full control over the LCD for displaying text and system             information.
+   The LCD I2C library is organized into the following structured layers:
+   Configuration (LCD_I2C_CONF.h): Centralizes configuration parameters such as the I2C slave      address of the LCD module and display-specific settings, allowing easy portability and reuse.
+   MCAL Dependency (TWI Driver):
+   Function Prototypes (TWI.h): Declares the core functions which abstract the low-level           operations such as initializing, reading, and stopping the I2C communication.
+   Implementation (TWI.c): Implements all functions using bit level manipulation:
+   I2C_init():this function initialize the I2C by setting the clock using a prescaler.
+   I2C_start():this function is made to start the communication by setting the start registers.
+   I2C_stop():this function is made to stop the communication.
+   I2C_write(data): this function is made to send data by byte.
+   I2C_readAck():this read and enable  the acknowlagement from the I2C.
+   Function Prototypes (LCD_I2C.h):
+   Declares high-level LCD interface functions that abstract low-level I2C transactions, such      as initialization, command transmission, data writing, cursor positioning, and backlight        control.
+   Implementation (LCD_I2C.c):
+   Implements all LCD functions using bit-level manipulation and I2C communication. The driver     operates the LCD in 4-bit mode by transmitting high and low nibbles sequentially through the    I2C expander.
+   LCD_init(): Initializes the I2C peripheral and configures the LCD in 4-bit mode, setting        display parameters such as number of lines, cursor behavior, entry mode, and display state.
+   LCD_command(cmd):Sends control commands to the LCD, handling timing requirements for            critical instructions like clear and home.
+   LCD_data(data):Sends character data to be displayed on the LCD.
+   LCD_setCursor(row, col): Sets the cursor position based on the specified row and column.
+   LCD_print(str) / LCD_printPgm(str): Displays strings stored in RAM or program memory            (Flash), supporting memory-efficient text output.
+   LCD_backlight(state): Controls the LCD backlight through the I2C expander.
+  
+    
+      
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   
+  
