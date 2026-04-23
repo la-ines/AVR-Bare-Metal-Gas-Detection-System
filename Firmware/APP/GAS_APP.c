@@ -7,22 +7,15 @@
 #include "../APP/gas sensor/GAS_APP.h"
 #include "../MCAL/UART.h"
 #include "../MCAL/UART_reg.h"
-#define F_CPU 16000000UL
 #include <util/delay.h>
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <math.h>
-
-
-#define ADC_MAX_VALUE 1023.0    
-#define V_REF 5.0             
-#define R_L 10000.0           
-#define V_CC 5.0
-
+uint16_t adc_value;
 
 void GAS_APP() {
-	uint16_t adc_value;
+	
 	 DIO_SetPinDirection(DIO_PORTD, Pin7, Output);
 	ADC_Initialize();
 	LCD_init();       
