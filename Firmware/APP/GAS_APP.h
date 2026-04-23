@@ -12,6 +12,7 @@
 #define R0   355357.120 // refrence resistance (resistance in clean air)
 #define A  116.6020682 //CO2 constant A
 #define B  -2.769034857 //CO2 constant B
+#define F_CPU 16000000UL
 
 void GAS_APP(void);
 
