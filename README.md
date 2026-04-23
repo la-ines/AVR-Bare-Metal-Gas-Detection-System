@@ -45,3 +45,22 @@ avr-gas-detection-driver/
 │   └── UART_APP/       # High-level Serial Messaging
 └── APP/ (Application Layer)
     └── GAS_APP/        # Main Logic and Threshold Detection
+```
+### Detailed Module Descriptions
+
+#### 🛠 MCAL (Microcontroller Abstraction Layer)
+* **DIO (Digital I/O):** The foundational driver for pin control. It implements direct register access to `DDRx`, `PORTx`, and `PINx` registers. Features include atomic bit-setting, direction configuration, and logic-level reading with high-efficiency macros.
+* **ADC (Analog-to-Digital Converter):** A 10-bit conversion driver. It manages the `ADMUX` and `ADCSRA` registers to handle channel selection, voltage reference (AVCC/Internal), and prescaler configuration to ensure accurate sensor readings at a stable frequency.
+* **TWI (I2C):** A custom implementation of the Two-Wire Interface. It manages the hardware state machine via `TWCR` and `TWDR` registers, supporting Start/Stop conditions, Master Transmitter mode, and SLA+W (Slave Address + Write) protocols.
+* **UART:** Enables full-duplex serial communication. It calculates the `UBRR0` value based on $F_{CPU}$ to set the baud rate and utilizes the `UDR0` data register for transmitting strings and system logs to external monitors.
+
+#### 🏗 HAL (Hardware Abstraction Layer)
+* **LCD I2C Driver:** An abstraction that interfaces with the **PCF8574** I2C expander. It translates 8-bit commands into 4-bit nibbles required by the HD44780 LCD controller, managing the Enable (E) and Register Select (RS) pulses over the I2C bus.
+* **MQ-135 Sensor Module:** Handles the mathematical conversion of raw ADC data into gas concentration levels. It implements the sensor's load resistance calibration and uses logarithmic curve fitting to estimate PPM (Parts Per Million).
+
+#### 📱 APP (Application Layer)
+* **Gas Detection Logic:** The top-level firmware that orchestrates the system behavior. It implements a non-blocking super-loop that:
+    1. Periodically triggers ADC conversions.
+    2. Updates the LCD with real-time concentration data.
+    3. Evaluates safety thresholds to trigger the **Buzzer Alarm** and **Serial Alerts** if air quality degrades.
+
