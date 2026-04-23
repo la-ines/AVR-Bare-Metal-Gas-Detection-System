@@ -30,7 +30,7 @@ The system interfaces with an **MQ-135 sensor** to detect harmful gases like CO 
 ### Driver Architecture Structure
 The firmware follows a modular layered approach (MCAL -> HAL -> APP) to ensure code reusability and portability.
 
-text
+```text
 avr-gas-detection-driver/
 ├── MCAL/ (Microcontroller Abstraction Layer)
 │   ├── DIO/            # Digital I/O Register-level Control
