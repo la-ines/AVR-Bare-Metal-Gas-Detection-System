@@ -41,8 +41,7 @@ avr-gas-detection-driver/
 │   └── Macros/         # Bit-math and Common Macros
 ├── HAL/ (Hardware Abstraction Layer)
 │   ├── LCD_I2C/        # I2C-based LCD Driver (PCF8574)
-│   ├── ADC_LAB/        # Sensor-specific Processing
-│   └── UART_APP/       # High-level Serial Messaging
+│   └── ADC_LAB/       # Sensor-specific Processing
 └── APP/ (Application Layer)
     └── GAS_APP/        # Main Logic and Threshold Detection
 ```
