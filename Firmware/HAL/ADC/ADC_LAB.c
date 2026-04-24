@@ -1,5 +1,4 @@
 
-
 #include "../MCAL/DIO_types.h"
 #include "../MCAL/DIO1.h"
 #include "../MCAL/Bit_Math.h"
@@ -10,7 +9,9 @@
 #include "../MCAL/UART_reg.h"
 #include  "../APP/LCD_app.h"
 #include "../HAL/LCD/LCD.h"
-#include "../HAL/LCD_I2C/LCD_I2C.h
+#include "../HAL/LCD_I2C/LCD_I2C.h"
+
+#define F_CPU 16000000UL
 #include <util/delay.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -25,6 +26,8 @@ void ADC_Lab(void) {
 	_delay_ms(100);
 	ADC_Initialize();
 	
+	
+
 	while (1) {
 		ADC_StartConversion(ADC_Channel_1);
 		value = ADC_GetResult();
