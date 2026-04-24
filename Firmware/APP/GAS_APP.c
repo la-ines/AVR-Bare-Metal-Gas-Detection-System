@@ -7,7 +7,7 @@
 #include "../APP/gas sensor/GAS_APP.h"
 #include "../MCAL/UART.h"
 #include "../MCAL/UART_reg.h"
-#include <util/delay.h>
+#include "delay_function.h"
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -34,12 +34,14 @@ void GAS_APP() {
 		{UART_Send_String("buzzer on");
 			UART_Send_String("\r\n");
 	        DIO_SetPinValue(DIO_PORTD, Pin7, HIGH);
-        _delay_ms(100);}
+       
+		Delay_ms(100);}
 		else{
 			DIO_SetPinValue(DIO_PORTD, Pin7, LOW);
 			UART_Send_String("buzzer off");
 			UART_Send_String("\r\n");
-			_delay_ms(100);
+			
+		Delay_ms(100);
 		}
 		// Convert float to integers (multiply by 1000 to preserve 3 decimal places)
 		int32_t vout_int = (int32_t)(VOUT * 1000);
@@ -67,18 +69,18 @@ void GAS_APP() {
 		UART_Send_String(ppm_str);
 		UART_Send_String("\r\n");
        //prints results on lcd
-		_delay_ms(100);
+		Delay_ms(100);
 		LCD_setCursor(0, 0);
 		LCD_print(adc_str);
-		_delay_ms(2000);
+		Delay_ms(2000);
 		LCD_clear();
 		LCD_setCursor(0, 0);
 		LCD_print(rs_str);
-		_delay_ms(2000);
+		Delay_ms(2000);
 		LCD_clear();
 	    LCD_setCursor(0, 0);
 	    LCD_print(ppm_str);
-	    _delay_ms(2000);
+	   Delay_ms(2000);
 	   LCD_clear();
 	   
 }
