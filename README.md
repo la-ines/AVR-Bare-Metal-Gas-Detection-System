@@ -62,4 +62,7 @@ avr-gas-detection-driver/
     1. Periodically triggers ADC conversions.
     2. Updates the LCD with real-time concentration data.
     3. Evaluates safety thresholds to trigger the **Buzzer Alarm** and **Serial Alerts** if air quality degrades.
+ 
+### block diagram of the circuit 
+<img width="968" height="585" alt="circuit" src="https://github.com/user-attachments/assets/612b7ffc-7038-4a94-ab93-5974ab4b86ca" />
 
